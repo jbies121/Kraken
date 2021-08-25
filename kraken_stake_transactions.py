@@ -31,7 +31,7 @@ def stake_update(resp):
     top_time_u = top['time']
     top_time = datetime.datetime.fromtimestamp(top_time_u)
     # Read last entry in ledger
-    wb = load_workbook(filename = 'CryptoLedger.xlsx')
+    wb = load_workbook(filename = 'Crypto Ledger.xlsx')
     ws = wb.active
     last_row = ws.max_row
     last_time = ws.cell(row = last_row, column = 1).value
