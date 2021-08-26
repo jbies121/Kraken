@@ -2,7 +2,6 @@ import urllib.parse
 import hashlib
 import hmac
 import base64
-from secrets import api_sec
 
 def get_kraken_signature(urlpath, data, secret):
 
