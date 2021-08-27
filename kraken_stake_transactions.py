@@ -1,29 +1,10 @@
 import time
 import datetime
-import requests
-import json
 from openpyxl import load_workbook
-from kraken_auth import get_kraken_signature
+from kraken_auth import get_kraken_signature,kraken_request
+from kraken_market import kraken_price
 from secrets import api_key,api_sec
 
-
-api_url = "https://api.kraken.com"
-
-# Attaches auth headers and returns results of a POST request
-def kraken_request(uri_path, data, api_key, api_sec):
-    headers = {}
-    headers['API-Key'] = api_key
-    # get_kraken_signature() as defined in the 'Authentication' section
-    headers['API-Sign'] = get_kraken_signature(uri_path, data, api_sec)
-    req = requests.post((api_url + uri_path), headers=headers, data=data)
-    return req
-
-def kraken_price(asset_index,top_time_u):
-    price_check_uri = 'https://api.kraken.com/0/public/OHLC?pair='+asset_index+'&since='+str(top_time_u - 3600)+'&interval=60'
-    price = requests.get(price_check_uri)
-    price = json.loads(price.content.decode())
-    price = price['result'][asset_index][00][4]
-    return price
 
 def stake_update(resp):
     # Read most recent staking activity
@@ -41,7 +22,8 @@ def stake_update(resp):
         asset = str(top['asset'])[:-2]
         asset_index = asset+'USD'
         # get asset price at top_time
-        price = kraken_price(asset_index,top_time_u)
+        price = kraken_price(asset_index,top_time_u - 3600,60)
+        price = price['result'][asset_index][00][4]
         # add new ledger entry
         ws.cell(row = next_row, column = 1).value = top_time
         ws.cell(row = next_row, column = 2).value = 'REWARD'
