@@ -3,7 +3,6 @@ import datetime
 from openpyxl import load_workbook
 from kraken_auth import get_kraken_signature,kraken_request
 from kraken_market import kraken_price
-from secrets import api_key,api_sec
 
 def update_ledger(wb,ws,last_row,kraken_time_u,kraken_time,transaction,amount):
     next_row = last_row + 1
@@ -59,7 +58,7 @@ def stake_update(resp):
 # Construct the request and print the result
 resp = kraken_request('/0/private/Staking/Transactions', {
     "nonce": str(int(1000*time.time()))
-}, api_key, api_sec)
+})
 
 stake_update(resp.json())
 print(resp.json())

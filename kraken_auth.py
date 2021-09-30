@@ -3,6 +3,7 @@ import hashlib
 import hmac
 import base64
 import requests
+from secrets import api_key,api_sec
 
 def get_kraken_signature(urlpath, data, secret):
 
@@ -17,7 +18,7 @@ def get_kraken_signature(urlpath, data, secret):
 api_url = "https://api.kraken.com"
 
 # Attaches auth headers and returns results of a POST request
-def kraken_request(uri_path, data, api_key, api_sec):
+def kraken_request(uri_path, data):
     headers = {}
     headers['API-Key'] = api_key
     # get_kraken_signature() as defined in the 'Authentication' section
