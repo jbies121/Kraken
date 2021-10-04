@@ -1,10 +1,9 @@
-import time
 import datetime
 from openpyxl import load_workbook
-from kraken_auth import get_kraken_signature,kraken_request
+from kraken_auth import kraken_request
 from kraken_market import kraken_price
 
-def update_ledger(wb,ws,last_row,kraken_time_u,kraken_time,transaction,amount):
+def update_ledger(wb,ws,last_row,kraken_time_u,kraken_time,transaction,amount,asset_index,asset):
     next_row = last_row + 1
     # get asset price at kraken_time
     price = kraken_price(asset_index,kraken_time_u - 3600,60)
@@ -47,7 +46,7 @@ def stake_update(resp):
                 asset_index = asset+'USD'
                 amount = resp['result'][ahead]['amount']
 
-                update_ledger(wb,ws,last_row,kraken_time_u,kraken_time,transaction,amount)
+                update_ledger(wb,ws,last_row,kraken_time_u,kraken_time,transaction,amount,asset_index,asset)
                 # Update last row and time for next iteration
                 last_row = ws.max_row
                 last_time = ws.cell(row = last_row, column = 1).value
@@ -57,7 +56,7 @@ def stake_update(resp):
 
 # Construct the request and print the result
 resp = kraken_request('/0/private/Staking/Transactions', {
-    "nonce": str(int(1000*time.time()))
+    "nonce": str(int(1000*datetime.datetime.utcnow().timestamp()))
 })
 
 stake_update(resp.json())
