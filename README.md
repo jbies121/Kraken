@@ -17,6 +17,7 @@
 ## Usage
 1. Install requirements
 `$ pip install -r requirements.txt`
+or
 `> python -m pip install requirements.txt`
 
 1. Create a `secrets.py` file in the same directory:
