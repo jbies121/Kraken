@@ -3,11 +3,11 @@ from openpyxl import load_workbook
 from kraken_auth import kraken_request
 from kraken_market import kraken_price
 
-def add_to_ledger(wb,ws,last_row,kraken_time_u,kraken_time,transaction,amount,asset_index,asset):
+def add_to_ledger(wb,ws,last_row,kraken_time_u,kraken_time,transaction,amount,asset_market,asset):
     next_row = last_row + 1
     # Get asset price at kraken_time
-    price = kraken_price(asset_index,kraken_time_u - 3600,60)
-    price = price['result'][asset_index][00][4]
+    price = kraken_price(asset_market,kraken_time_u - 3600,60)
+    price = price['result'][asset_market][00][4]
     # Add new ledger entry
     ws.cell(row = next_row, column = 1).value = kraken_time
     ws.cell(row = next_row, column = 2).value = transaction
@@ -18,7 +18,7 @@ def add_to_ledger(wb,ws,last_row,kraken_time_u,kraken_time,transaction,amount,as
     print('Updated Ledger:',kraken_time)
 
 
-def staking_update():
+def staking_update(fiat):
     resp = kraken_request('/0/private/Staking/Transactions', {"nonce": str(int(1000*datetime.datetime.utcnow().timestamp()))}).json()
     # Read most recent staking activity
     kraken_time_u = resp['result'][0]['time']
@@ -44,10 +44,10 @@ def staking_update():
                 kraken_time = datetime.datetime.fromtimestamp(kraken_time_u)
                 transaction = resp['result'][ahead]['type'].upper()
                 asset = str(resp['result'][ahead]['asset'])[:-2]
-                asset_index = asset+'USD'
+                asset_market = asset+fiat
                 amount = resp['result'][ahead]['amount']
 
-                add_to_ledger(wb,ws,last_row,kraken_time_u,kraken_time,transaction,amount,asset_index,asset)
+                add_to_ledger(wb,ws,last_row,kraken_time_u,kraken_time,transaction,amount,asset_market,asset)
                 # Update last row and time for next iteration
                 last_row = ws.max_row
                 last_time = ws.cell(row = last_row, column = 1).value
@@ -56,4 +56,5 @@ def staking_update():
         print('No update needed.')
 
 # Check for stake rewards and record them in the ledger
-staking_update()
+# A fiat currency string is used to find the approximate price of an asset at the time of the staking transaction
+staking_update('USD')
